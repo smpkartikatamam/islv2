@@ -146,8 +146,12 @@
         <!-- App Header Bar -->
         <header class="px-5 py-3 flex items-center justify-between glass-card sticky top-0 z-20 mx-3 rounded-2xl shadow-sm my-1 border border-white/90">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30">
-                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-md shadow-blue-500/30 overflow-hidden">
+                    <img 
+                        src="https://i.ibb.co/M526np9T/islwahyu.png" 
+                        alt="Logo ISL" 
+                        class="w-full h-full object-contain p-1"
+                    >
                 </div>
                 <div>
                     <h1 class="font-black text-slate-800 text-sm tracking-tight leading-none">ISL</h1>
@@ -176,8 +180,12 @@
                     <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
                     <div class="absolute -left-8 -top-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
                     
-                    <div class="inline-flex p-3.5 bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 rounded-2xl shadow-lg shadow-blue-500/30 text-white mb-2 animate-float animate-pulse-glow">
-                        <i class="fa-solid fa-laptop-code text-3xl"></i>
+                    <div class="inline-flex p-3.5 bg-white rounded-2xl shadow-lg shadow-blue-500/30 mb-2 animate-float animate-pulse-glow">
+                        <img 
+                            src="https://i.ibb.co/M526np9T/islwahyu.png"
+                            alt="Logo"
+                            class="w-12 h-12 object-contain rounded-xl"
+                        >
                     </div>
                     <h2 class="text-2xl font-black tracking-tight text-slate-800">ISL</h2>
                     <p class="text-[10px] font-extrabold text-blue-600 tracking-wider uppercase mb-1">Informatika Smart Learning</p>
@@ -298,7 +306,10 @@
                 <div class="p-3 rounded-2xl bg-slate-200/60 border border-slate-300/80 flex items-center justify-between text-slate-600 text-[10px]">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-mobile-screen-button text-indigo-600"></i>
-                        <span>Device ID: <b id="device-id-label" class="font-mono text-slate-800">ISL-DEV-XXXX</b></span>
+                        <span>
+                            Device ID:
+                            <b id="device-id-label" class="font-mono text-slate-800">ISL-XXXXXX</b>
+                        </span>
                     </div>
                     <button onclick="copyDeviceId()" class="text-blue-600 font-bold hover:underline">
                         <i class="fa-regular fa-copy"></i> Salin
@@ -747,7 +758,7 @@
 
                     <div class="flex justify-between items-end pt-3 text-[9px] text-slate-500 border-t border-slate-200">
                         <div class="text-left font-mono">
-                            <p>Device ID: <span id="cert-device-id">ISL-DEV</span></p>
+                            <p>Device ID: <span id="cert-device-id">ISL-XXXXXX</span></p>
                             <p>Tgl: <span id="cert-date">03/10/2026</span></p>
                         </div>
                         <div class="text-right">
@@ -1063,15 +1074,26 @@
         // DEVICE ID GENERATOR
         function initDeviceId() {
             let id = localStorage.getItem('isl_device_id');
+
             if (!id) {
-                const randStr = Math.random().toString(36).substring(2, 8).toUpperCase();
+                const randStr = Math.random()
+                    .toString(36)
+                    .substring(2, 8)
+                    .toUpperCase();
+
                 id = `ISL-DEV-${randStr}`;
                 localStorage.setItem('isl_device_id', id);
             }
+
             state.deviceId = id;
-            document.getElementById('device-id-label').innerText = id;
-            document.getElementById('cert-device-id').innerText = id;
+
+            const label = document.getElementById('device-id-label');
+            const certLabel = document.getElementById('cert-device-id');
+
+            if (label) label.textContent = id;
+            if (certLabel) certLabel.textContent = id;
         }
+
 
         function copyDeviceId() {
             navigator.clipboard.writeText(state.deviceId).then(() => {
@@ -1787,10 +1809,22 @@
 
         // Live Clock
         function startClock() {
+            const clockElement = document.getElementById('current-time');
+
+            // Jika elemen jam tidak ditemukan, aplikasi tetap berjalan.
+            if (!clockElement) {
+                console.warn('Elemen current-time tidak ditemukan.');
+                return;
+            }
+
             function updateTime() {
                 const now = new Date();
-                document.getElementById('current-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+                clockElement.innerText =
+                    `${String(now.getHours()).padStart(2, '0')}:` +
+                    `${String(now.getMinutes()).padStart(2, '0')}`;
             }
+
             updateTime();
             setInterval(updateTime, 10000);
         }
@@ -1801,6 +1835,70 @@
             loadUserData();
             initLogicGameLevel(0);
         };
+    </script>
+    <script>
+        // =========================
+        // DEVICE ID PERMANEN
+        // =========================
+        let deviceId = localStorage.getItem('isl_device_id');
+
+        if (!deviceId) {
+            const random = Math.random()
+                .toString(36)
+                .substring(2, 8)
+                .toUpperCase();
+
+            deviceId = 'ISL-' + random;
+
+            // Simpan agar tidak berubah
+            localStorage.setItem('isl_device_id', deviceId);
+        }
+
+        document.getElementById('cert-device-id').textContent = deviceId;
+
+
+        // =========================
+        // TANGGAL OTOMATIS
+        // =========================
+        const today = new Date();
+
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+
+        document.getElementById('cert-date').textContent =
+            `${day}/${month}/${year}`;
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let deviceId = localStorage.getItem("isl_device_id");
+
+        // Buat ID hanya jika belum pernah ada
+        if (!deviceId) {
+            const random = Math.random()
+                .toString(36)
+                .substring(2, 8)
+                .toUpperCase();
+
+            deviceId = "ISL-" + random;
+
+            localStorage.setItem("isl_device_id", deviceId);
+        }
+
+        // Tampilkan ID di SEMUA bagian yang menggunakan ID ini
+        const elements = [
+            document.getElementById("device-id-label"),
+            document.getElementById("cert-device-id")
+        ];
+
+        elements.forEach(function (element) {
+            if (element) {
+                element.textContent = deviceId;
+            }
+        });
+
+    });
     </script>
 </body>
 </html>
