@@ -818,7 +818,7 @@
         // Tempel URL Web App Google Apps Script milik guru di bawah.
         // URL ini sengaja tidak ditampilkan kepada siswa.
         // ============================================================
-        const GOOGLE_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnRbyUVJNh0apqeRxNKo8fwDvgoJYqM7Y9YgXVGf6k6lVUa1XauguzJjPKPK12K1iTZi4jbF7-s5TWQpK_ugtK07gLQmPkc2kzMRXaO-rnYZWar7NeD9LrqIKpn5dQAMaYMVxVodd3foXA3HT4tFmf8YckcLYadRk355EbthXv9YMnhivFC2kj5KaFR-YIvTK5veIyC6yXZWPhlOhJxvflKG64o1Bii4YwGPp-OFmlGcoXRl_RZKOHE3L-z26n-2S2XyhC_n25DSMXvpa-s&lib=MMdFwvPLKpfvlGZg1HNDIVIHvfU5ZDxYj";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzHgTgu268I0kKtVR6rCvVEdKosDtcng7ANUhovKM_GRfh0UJ1bxpO672a2AKB_jm0/exec";
 
         // APP STATE MANAGEMENT
         const state = {
@@ -1083,9 +1083,17 @@
 
         // GOOGLE SHEETS WEBHOOK SYNC ENGINE
         // Sinkronisasi berjalan otomatis. Tidak ada menu/URL Sheet di sisi siswa.
+        
         function syncDataToGoogleSheet(silent = true) {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnRbyUVJNh0apqeRxNKo8fwDvgoJYqM7Y9YgXVGf6k6lVUa1XauguzJjPKPK12K1iTZi4jbF7-s5TWQpK_ugtK07gLQmPkc2kzMRXaO-rnYZWar7NeD9LrqIKpn5dQAMaYMVxVodd3foXA3HT4tFmf8YckcLYadRk355EbthXv9YMnhivFC2kj5KaFR-YIvTK5veIyC6yXZWPhlOhJxvflKG64o1Bii4YwGPp-OFmlGcoXRl_RZKOHE3L-z26n-2S2XyhC_n25DSMXvpa-s&lib=MMdFwvPLKpfvlGZg1HNDIVIHvfU5ZDxYj")) {
-                console.warn("Google Apps Script URL belum dikonfigurasi.");
+            if (
+                !GOOGLE_SCRIPT_URL ||
+                !GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/macros/s/") ||
+                !GOOGLE_SCRIPT_URL.endsWith("/exec")
+            ) {
+                console.warn("URL Google Apps Script belum benar.");
+                if (!silent) {
+                    showToast("URL sinkronisasi belum benar.");
+                }
                 return;
             }
 
@@ -1102,15 +1110,23 @@
             };
 
             fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
                 body: JSON.stringify(payload)
-            }).then(() => {
-                if (!silent) showToast("Data belajar berhasil disinkronkan.");
-            }).catch((err) => {
-                console.error("Gagal sinkronisasi Google Apps Script:", err);
-                if (!silent) showToast("Sinkronisasi gagal. Periksa koneksi internet.");
+            })
+            .then(() => {
+                if (!silent) {
+                    showToast("Permintaan sinkronisasi telah dikirim.");
+                }
+            })
+            .catch((err) => {
+                console.error("Gagal mengirim data:", err);
+                if (!silent) {
+                    showToast("Pengiriman gagal. Periksa koneksi internet.");
+                }
             });
         }
 
